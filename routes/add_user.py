@@ -1,11 +1,11 @@
-# routes/quickbase.py
+# routes/add_user.py
 
 from flask import Blueprint, request, jsonify
 from services.quickbase import get_user_info
 
-api = Blueprint('api', __name__)
+add_user_api = Blueprint('add_user_api', __name__)
 
-@api.route('/add-user', methods=['POST'])
+@add_user_api.route('/add-user', methods=['POST'])
 def add_user():
     data = request.json
     email = data.get('email')  # Retrieve the email from the request body
