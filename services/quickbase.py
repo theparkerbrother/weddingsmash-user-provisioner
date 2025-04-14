@@ -22,7 +22,7 @@ def parse_user_info(xml_data):
     }
     return user_info
 
-def get_user_info(email):
+def get_user_info_xml(email):
     # Get the user token from the environment variable
     user_token = os.getenv("QB_USER_TOKEN")
 
@@ -55,3 +55,43 @@ def get_user_info(email):
         print(f"Error occurred while getting user info: {e}")
         return None
 
+def get_user_info(email):
+    # Get the user token from the environment variable
+    user_token = os.getenv("QB_USER_TOKEN")
+    realm = os.getenv("QB_REALM_HOSTNAME")
+    app_id = os.getenv("QB_APP_ID")
+
+    url = f"https://api.quickbase.com/v1/users"
+    headers = {
+        "Authorization": f"QB-USER-TOKEN {user_token}",
+        "QB-Realm-Hostname": realm,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "emails": [f"{email}"],
+        "appIds": [f"{app_id}"],
+        "nextPageToken": ""
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("users"):
+            user = data["users"][0]
+            user_info = {
+                "user_id": user.get("hashId"),
+                "userName": user.get("userName"),
+                "firstName": user.get("firstName"),
+                "lastName": user.get("lastName"),
+                "emailAddress": user.get("emailAddress"),
+                "This is the new one": "See, it's new!"
+            }
+            return user_info
+        else: 
+            return None
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching user info: {e}")
+        return None
