@@ -8,6 +8,7 @@ flask = "*"
 requests = "*"
 python-dotenv = "*"
 xmltodict = "*"
+gunicorn = "*"
 
 [dev-packages]
 
