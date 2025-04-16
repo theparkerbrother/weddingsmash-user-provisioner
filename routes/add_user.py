@@ -1,7 +1,7 @@
 # routes/add_user.py
 
 from flask import Blueprint, request, jsonify
-from services.quickbase import get_user_info, get_user_roles
+from services.quickbase import get_user_info, get_user_roles, add_member_to_group, provision_user_xml
 from utils.auth import is_valid_request
 
 add_user_api = Blueprint('add_user_api', __name__)
@@ -14,12 +14,20 @@ def add_user():
     data = request.json
     email = data.get('email')
     roleId = data.get('roleId')
+    fname = data.get('fname')
+    lname = data.get('lname')
 
     if not email:
         return jsonify({"error": "Email is required"}), 400
 
     if not roleId:
         return jsonify({"error": "Role ID is required"}), 400
+    
+    if not fname:
+        return jsonify({"error": "fname is required"}), 400
+
+    if not lname:
+        return jsonify({"error": "lname is required"}), 400
 
     user_info = get_user_info(email)
 
@@ -38,14 +46,25 @@ def add_user():
                 return jsonify({"message": f"Role {roleId} is found for the user.", "user_info": user_info}), 200
             else:
                 # User has NOT been added in specified role
-                return jsonify({"message": f"Role {roleId} not found for the user.", "user_info": user_info}), 200
+                if add_member_to_group(user_id) == True:
+                    return jsonify({"message": f"User added"}), 200
+                else:
+                    return jsonify({"message": f"User already exists, but could not be added in the role"}), 500
         else:
             user_info["roles"] = []  # Or handle as you like if no user_id was found
 
         return jsonify({"user_info": user_info}), 200
     else:
         # Quickbase User does NOT exist
-        return jsonify({"message": "User does not exist"}), 200
+        user_id = provision_user_xml(email, roleId, fname, lname)
+        if user_id:
+            if add_member_to_group(user_id) == True:
+                return jsonify({"message": f"User provisioned and added"}), 200
+            else: 
+                return jsonify({"message": f"User provisioned but not added to the application"}), 500
+        else:
+                return jsonify({"error": "user not added"}), 500
+        # return jsonify({"message": "User does not exist"}), 200
 
 
 
