@@ -12,7 +12,7 @@ user_table_id = "brs2v3sdf"
 user_permission_table_id = "brqhzreui"
 contractor_table_id = "brhbgd4w3"
 
-def update_contractor_record(contractorId, userId):
+def update_contractor_record(contractorId, email):
     url = "https://api.quickbase.com/v1/records"
     headers = {
         "Authorization": f"QB-USER-TOKEN {smash_magic_user_token}",
@@ -20,15 +20,14 @@ def update_contractor_record(contractorId, userId):
         "Content-Type": "application/json"
     }
     payload = {
-        "to": user_table_id,
+        "to": contractor_table_id,
         "data": [
             {
-                "6": {"value": userEmail},
-                "7": {"value": companyId},
-                "15": {"value": "Contractor"}
+                "3": {"value": contractorId},     # Record ID field
+                "321": {"value": email},          # Team Member User field
             }
         ],
-        "fieldsToReturn": [52]
+        "fieldsToReturn": [321]
     }
 
     try:
@@ -40,33 +39,13 @@ def update_contractor_record(contractorId, userId):
         print("Parsed JSON response from Quickbase:", response_json)
 
         metadata = response_json.get("metadata", {})
-        record_data = response_json.get("data", [{}])[0]
-
-        created = metadata.get("createdRecordIds", [])
         updated = metadata.get("updatedRecordIds", [])
-        unchanged = metadata.get("unchangedRecordIds", [])
 
-        permissionRecordExists = record_data.get("52", {}).get("value")
-
-        if created or updated or unchanged:
-            print("✅ Success!")
-            print("User Record Created:", created)
-            print("User Record Updated:", updated)
-            print("User Record Unchanged:", unchanged)
-            return {
-                "userRecordSuccess": True,
-                "permissionRecordExists": permissionRecordExists
-            }
+        if updated and updated[0] == contractorId:
+            return "Team Member User field Updated"
         else:
-            print("❌ No changes were made to the user record.")
-            return {
-                "userRecordSuccess": False,
-                "permissionRecordExists": permissionRecordExists
-            }
+            return "No update required"
 
     except requests.exceptions.RequestException as e:
-        print(f"❌ Error adding User record: {e}")
-        return {
-            "userRecordSuccess": False,
-            "permissionRecordExists": None
-        }
+        print(f"❌ Error updating contractor record: {e}")
+        return "error"

@@ -9,7 +9,8 @@ from services.quickbase import (
     add_user_to_role_xml,
     add_update_user_record,
     add_user_permission,
-    send_invitation_xml
+    send_invitation_xml,
+    update_contractor_record
 )
 from utils.auth import is_valid_request
 
@@ -27,6 +28,7 @@ def add_user():
     lname = data.get('lname')
     companyId = data.get('companyId')
     companyName = data.get('companyName')
+    contractorId = data.get('contractorId')
 
     missing_fields = {}
     if not email:
@@ -41,6 +43,8 @@ def add_user():
         missing_fields["companyId"] = "Company ID is required"
     if not companyName:
         missing_fields["companyName"] = "Company Name is required"
+    if not contractorId:
+        missing_fields["contractorId"] = "Contractor Record ID is required"
 
     if missing_fields:
         return jsonify({"error": "Missing required data", "missing data": missing_fields}), 400
@@ -50,39 +54,47 @@ def add_user():
         "provisioning": None,
         "user_record": None,
         "user_permission_record": None,
-        "invitation": None
+        "invitation": None,
+        "contractor_record": None
     }
 
-    def userAndPermissionRecords(email, companyId, userId, companyName):
+    def makeQuickbaseChanges(email, companyId, userId, companyName, contractorId):
         user_record_result = add_update_user_record(email, companyId)
+        user_record_ready = user_record_result["userRecordSuccess"]
 
-        if user_record_result["userRecordSuccess"]:
-            result["user_record"] = "User record is ready!"
-        else:
-            result["user_record"] = "User record could not be created."
+        result["user_record"] = (
+            "User record is ready!" if user_record_ready
+            else "User record could not be created."
+        )
 
-        if user_record_result["permissionRecordExists"] is True:
+        if user_record_result["permissionRecordExists"]:
             result["user_permission_record"] = "User permission record already exists!"
-            permission_created_or_exists = True
+            permission_ready = True
         else:
-            user_permission_record_created = add_user_permission(email, companyId)
-            if user_permission_record_created:
-                result["user_permission_record"] = "User permission record created!"
-                permission_created_or_exists = True
-            else:
-                result["user_permission_record"] = "User permission record could not be created."
-                permission_created_or_exists = False
+            permission_created = add_user_permission(email, companyId)
+            permission_ready = permission_created
+            result["user_permission_record"] = (
+                "User permission record created!" if permission_created
+                else "User permission record could not be created."
+            )
 
-        if user_record_result["userRecordSuccess"] and permission_created_or_exists:
-            invite = send_invitation_xml(userId,companyName)
-            if invite:
-                result["invitation"] = "Invite sent"
-                return True
+        if user_record_ready and permission_ready:
+            contractor_update = update_contractor_record(contractorId, email)
+            contractor_ready = contractor_update != "error"
+            result["contractor_record"] = contractor_update
+
+            if contractor_ready:
+                invite = send_invitation_xml(userId, companyName)
+                result["invitation"] = "Invite sent" if invite else "Invite failed to send"
+
+                if invite:
+                    return True
+                else:
+                    return False
             else:
-                result["invitation"] = "Invite failed to send"
                 return False
-        else:
-            return False
+
+        return False
 
     user_id = get_user_info_xml(email)
 
@@ -92,7 +104,7 @@ def add_user():
 
         if role_exists:
             result["provisioning"] = f"Role {roleId} is already assigned to user."
-            userAndPermissionRecordsReady = userAndPermissionRecords(email, companyId, user_id, companyName)
+            userAndPermissionRecordsReady = makeQuickbaseChanges(email, companyId, user_id, companyName, contractorId)
             if userAndPermissionRecordsReady:
                 result["status"] = "success"
                 return jsonify({"result": result}), 200
@@ -102,7 +114,7 @@ def add_user():
 
         if add_user_to_role_xml(user_id, roleId):
             result["provisioning"] = f"User exists, added to role {roleId}"
-            userAndPermissionRecordsReady = userAndPermissionRecords(email, companyId, user_id, companyName)
+            userAndPermissionRecordsReady = makeQuickbaseChanges(email, companyId, user_id, companyName, contractorId)
             if userAndPermissionRecordsReady:
                 result["status"] = "success"
                 return jsonify({"result": result}), 200
@@ -123,7 +135,7 @@ def add_user():
             return jsonify({"result": result}), 500
         else:
             result["provisioning"] = f"User provisioned and added to role {roleId}"
-            userAndPermissionRecordsReady = userAndPermissionRecords(email, companyId, user_id, companyName)
+            userAndPermissionRecordsReady = makeQuickbaseChanges(email, companyId, user_id, companyName, contractorId)
             if userAndPermissionRecordsReady:
                 result["status"] = "success"
                 return jsonify({"result": result}), 200
