@@ -9,3 +9,4 @@ from .provision_user_xml import provision_user_xml
 from .send_invitation_xml import send_invitation_xml
 from .add_update_user_record import add_update_user_record
 from .update_contractor_record import update_contractor_record
+from .remove_user_from_role_xml import remove_user_from_role_xml
