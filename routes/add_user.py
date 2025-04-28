@@ -136,7 +136,7 @@ def add_user():
             return jsonify({"result": result}), 500
         else:
             result["provisioning"] = f"User provisioned and added to role {roleId}"
-            userAndPermissionRecordsReady = makeQuickbaseChanges(email, companyId, user_id, companyName, contractorId)
+            userAndPermissionRecordsReady = makeQuickbaseChanges(email, companyId, new_user_id, companyName, contractorId)
             if userAndPermissionRecordsReady:
                 result["status"] = "success"
                 return jsonify({"result": result}), 200
