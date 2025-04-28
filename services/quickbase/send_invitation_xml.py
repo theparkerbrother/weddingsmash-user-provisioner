@@ -16,7 +16,7 @@ def send_invitation_xml(userId, companyName):
     # XML payload for the API request
     xml_payload = f"""
     <qdbapi>
-        <usertoken>{user_token}</usertoken>
+        <usertoken>{smash_magic_user_token}</usertoken>
         <userid>{userId}</userid>
         <usertext>Welcome to Wedding Smash!\n\nThis is the application you will use for your work with {companyName}.\n\nClick the "GO TO THIS APP IN QUICKBASE" button below to register your account.\n\nTo register you will need to:\n1. Set up your password AND\n2. Set up your secret questions (these will be used if you ever need to reset your password).\n\nView a demo of the app by following the link below.\nhttps://vimeo.com/1077772545/ac872cfd05</usertext>
     </qdbapi>
