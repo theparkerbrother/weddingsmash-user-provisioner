@@ -1,0 +1,22 @@
+2025-04-28 11:02:12,825 [INFO] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-04-28 11:02:12,825 [INFO] werkzeug: [33mPress CTRL+C to quit[0m
+2025-04-28 11:02:39,148 [INFO] middlewares: Incoming request: POST /add-user
+2025-04-28 11:02:39,149 [DEBUG] middlewares: Headers: {'X-Api-Key': 'thisIsMySuperSecretKey', 'Content-Type': 'application/json', 'User-Agent': 'PostmanRuntime/7.43.3', 'Accept': '*/*', 'Postman-Token': 'abe088e3-544f-4391-af87-ec64b71b3fee', 'Host': '127.0.0.1:5000', 'Accept-Encoding': 'gzip, deflate, br', 'Connection': 'keep-alive', 'Content-Length': '181'}
+2025-04-28 11:02:39,149 [DEBUG] middlewares: Request JSON: {'email': 'test3@ivorygrove.com', 'fname': 'Test', 'lname': '3', 'roleId': 47, 'companyId': 20, 'companyName': 'Tester Company', 'contractorId': 7773}
+2025-04-28 11:02:39,169 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): quincy.quickbase.com:443
+2025-04-28 11:02:39,502 [DEBUG] urllib3.connectionpool: https://quincy.quickbase.com:443 "POST /db/main HTTP/1.1" 200 None
+2025-04-28 11:02:39,516 [DEBUG] charset_normalizer: Encoding detection: ascii is most likely the one.
+2025-04-28 11:02:39,518 [DEBUG] charset_normalizer: Encoding detection: ascii is most likely the one.
+2025-04-28 11:02:39,528 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): quincy.quickbase.com:443
+2025-04-28 11:02:41,316 [DEBUG] urllib3.connectionpool: https://quincy.quickbase.com:443 "POST /db/brhbgd4wf HTTP/1.1" 200 None
+2025-04-28 11:02:41,320 [DEBUG] charset_normalizer: Encoding detection: ascii is most likely the one.
+2025-04-28 11:02:41,325 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): api.quickbase.com:443
+2025-04-28 11:02:41,633 [DEBUG] urllib3.connectionpool: https://api.quickbase.com:443 "POST /v1/records HTTP/1.1" 200 None
+2025-04-28 11:02:41,635 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): api.quickbase.com:443
+2025-04-28 11:02:42,333 [DEBUG] urllib3.connectionpool: https://api.quickbase.com:443 "POST /v1/records HTTP/1.1" 200 None
+2025-04-28 11:02:42,336 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): quincy.quickbase.com:443
+2025-04-28 11:02:42,524 [DEBUG] urllib3.connectionpool: https://quincy.quickbase.com:443 "POST /db/brhbgd4wf HTTP/1.1" 200 None
+2025-04-28 11:02:42,527 [DEBUG] charset_normalizer: Encoding detection: ascii is most likely the one.
+2025-04-28 11:02:42,528 [INFO] middlewares: Request to /add-user completed in 3.3787 seconds with status 200
+2025-04-28 11:02:42,529 [INFO] werkzeug: 127.0.0.1 - - [28/Apr/2025 11:02:42] "POST /add-user HTTP/1.1" 200 -
